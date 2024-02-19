@@ -1,0 +1,63 @@
+int num_rays = 100;
+
+PVector[] pos = new PVector[num_rays];
+PVector[] vel = new PVector[num_rays];
+
+void setup(){
+    size(1000, 1000);
+    background(20);
+    for(int i = 0; i < num_rays; i++){
+        float y = map(i, 0, num_rays, -radius+10, radius-10);
+        pos[i] = new PVector(0, y);
+        vel[i] = new PVector(1, 0);
+    }
+}
+
+PVector circle_center = new PVector(0, 0);
+float radius = 400;
+
+PVector get_normal(PVector p){
+    PVector normal = PVector.sub(circle_center, p);
+    normal.normalize();
+    return normal;
+}
+
+boolean collision(PVector p){
+    float distance = PVector.sub(circle_center, p).mag();
+    if(distance >= radius){
+        return true;
+    }
+    return false;
+}
+
+PVector reflection(PVector v, PVector n){
+    PVector d = PVector.mult(n, PVector.dot(n, v) * 2);
+    v.sub(d);
+    v.normalize();
+    return v;
+}
+
+void draw(){
+    translate(width/2, height/2);
+    noFill();
+
+    strokeWeight(1.0);
+    colorMode(HSB, num_rays, 100, 100);
+    for(int i = 0; i < num_rays; i++){
+
+        stroke(i, 100, 100);
+        circle(pos[i].x, pos[i].y, 1);
+
+        pos[i].add(vel[i]);
+        if(collision(pos[i])){
+            PVector normal = get_normal(pos[i]);
+            vel[i] = reflection(vel[i], normal);
+        }
+    }
+
+    colorMode(RGB, 255);
+    stroke(255);
+    strokeWeight(4.0);
+    circle(circle_center.x, circle_center.y, radius*2);
+
+}
